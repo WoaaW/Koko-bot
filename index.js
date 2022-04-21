@@ -1,13 +1,15 @@
 const Discord = require("discord.js");
 const { SlashCommandBuilder } = require("@discordjs/builders");
 const Client = new Discord.Client({
-
-    intents: [
-        Discord.Intents.FLAGS.GUILDS,
-        Discord.Intents.FLAGS.GUILD_MESSAGES
-    ]
+  intents: [
+      Discord.Intents.FLAGS.GUILDS,
+      Discord.Intents.FLAGS.GUILD_MESSAGES,
+    Discord.Intents.FLAGS.GUILD_VOICE_STATES
+  ]
 });
 
+
+const ytdl = require('ytdl-core');
 const express = require('express');
 const app = express();
 const port = 3000;
@@ -24,6 +26,7 @@ const data = new SlashCommandBuilder()
 
 
 const prefix = ".";
+let messageRatio
 
 const ratioRandoms = [
     "Arthur",
@@ -107,6 +110,9 @@ Client.on("ready", () => {
 Client.on("messageCreate", message => {
     if (message.author.bot) return;
 
+	  const args = message.content.slice(prefix.length).trim().split(/ +/);
+	  const command = args.shift().toLowerCase();
+  
     if(message.content === prefix + "rule"){
         message.channel.send("pas de règles, ratio");
     }
@@ -204,16 +210,16 @@ Client.on("messageCreate", message => {
     }
     else if (message.content === prefix + "tadd"){
         
-         if(team55.length <= 9, checkForDuplicates(team55, message.author.username) == true){
+         if(team55.length <= 9 && checkForDuplicates(team55, message.author.username) == true){
             team55.push(message.author.username);
           
             console.log(team55);
             console.log(team55.length);
 
             message.channel.send(team55.length + " personne(s) dans le randomizer");
-        }
+          }
 
-          else if(team55.length <= 9, checkForDuplicates(team55, message.author.username) == false){
+          else if(team55.length <= 9 && checkForDuplicates(team55, message.author.username) == false){
            message.channel.send("Tu es déjà dans le randomizer " + message.author.username + ", ratio")
           }
           else {
@@ -227,6 +233,7 @@ Client.on("messageCreate", message => {
             .setColor("#E033D1")
             .setTitle("Randomizer")
             .addField(".tadd","Pour s'ajouter au randomizer")
+            .addField(".tremove", "Pour se retirer")
             .addField(".tclear","Clear le randomizer")
             .addField(".trand","Crée les équipes")
             .addField(".tlist", "Liste des personnes dans le randomizer");
@@ -241,7 +248,8 @@ Client.on("messageCreate", message => {
     else if (message.content === prefix + "tlist"){
       message.channel.send("Dans le randomizer :")
       for (let index = 0; index < team55.length; index++) {
-        message.channel.send(index + ". " + team55[index]);
+        numero = index + 1
+        message.channel.send(numero + ". " + team55[index]);
         
         
       }
@@ -271,19 +279,41 @@ Client.on("messageCreate", message => {
       
     }
 
-    else if (message.content == prefix + "tremov"){
-      for (let index = 0; index < team55.length; index++){
-        if (message.author.username == team55[index]){
-            var tremov = team55.splice(index)
-            message.channel.send(message.author.username + " retiré");
-            return true
+    else if (message.content == prefix + "tremove"){
+      console.log("check1")
+      if (checkForDuplicates(team55, message.author.username) == false){
+        for (let index = 0; index < team55.length; index++){
+          if (message.author.username == team55[index]){
+              var tremov = team55.splice(index, 1)
+              message.channel.send(message.author.username + " retiré");
+              return true
           }
-        
         }
+      }
+      else {
+         message.channel.send("Tu n'es pas dans le randomizer " + message.author.username + ", ratio");
+      }
 
           
     }
 
+    else if (command === "tremove"){
+      console.log("check2")
+      if(args.length === 1 || checkForDuplicates(team55, args[0]) == false){
+        for (let index = 0; index < team55.length; index++){
+          console.log(team55[index])
+          if (args[0] == team55[index]){
+            console.log('check3')
+            var tremov = team55.splice(index, 1)
+            message.channel.send(args[0] + " retiré");
+            return true
+          }
+        }
+      }
+      else {
+        message.channel.send(args[0] + " n'est pas dans le randomizer, ratio ");
+      }
+    }
 
 
     else if (message.content === prefix + "VirgileReviens" || message.content === prefix + "virgileReviens" || message.content === prefix + "virgilereviens" || message.content === prefix + "Virgilereviens"){
@@ -297,10 +327,6 @@ Client.on("messageCreate", message => {
 
       message.channel.send("Et ce ratio il revient quand ?");
     }
-      else if (message.content === prefix + "join"){
-        let channel = client.channels.get('396034895027372035');
-        channel.join()
-      }
     
     else return false
   
