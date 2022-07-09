@@ -56,7 +56,7 @@ let messageRatio
 
 const exp = 0
 
-const blacklist = []
+let blacklist = []
 
 const ratioRandoms = [
     "Arthur",
@@ -138,8 +138,7 @@ db.set("randomTacosTier5", baseRandomTacosTier5);
 starterXp = ["Admin", 0]
 messageMax = ["Admin", 0]
 
-db.set("starterXp", starterXp);
-db.set("messageMax", messageMax);
+
 
 
 
@@ -221,16 +220,29 @@ function checkIfBlacklisted(name){
 
 }
 
-/*function tick() {
+function resetBlacklist(){
+  blacklist = [];
+  db.get("messageMax").then(messageMax =>{
+    for (let i = 1; i < messageMax.length; i = i + 2){
+    messageMax[i] = 0;
+    db.set("messageMax", messageMax);
+    }
+  })
+}
+
+
+
+
+function tick() {
   //get the mins of the current time
   var mins = new Date().getMinutes();
   if (mins == "00") {
-    alert('Do stuff');
+    resetBlacklist();
   }
   console.log('Tick ' + mins);
 }
 
-setInterval(tick, 1000 * 3);*/
+setInterval(tick, 1000 * 60);
 
 
 function shuffle(array) {
@@ -377,7 +389,7 @@ Client.on("messageCreate", message => {
         message.channel.send({ embeds: [embed]});
     }
 
-    else if (message.content === prefix + "test"){
+    /*else if (message.content === prefix + "test"){
         db.get("starterXp").then(starterXp => {
           starterXp.push("WoaaW");
           db.set("starterXp", starterXp)
@@ -387,8 +399,8 @@ Client.on("messageCreate", message => {
 
     else if (message.content === prefix + "test2"){
         db.get("starterXp").then(starterXp => {
-          /*starterXp.splice(0,1);
-          db.set("starterXp", starterXp)*/
+          starterXp.splice(0,1);
+          db.set("starterXp", starterXp)
           getKeyValue("starterXp").then((value) => console.log(value));
         })
     }
@@ -416,9 +428,8 @@ Client.on("messageCreate", message => {
      }    
 
     else if (message.content === prefix + "test5"){
-        addStarterXp(message.author.username);
-        getKeyValue("starterXp").then((value) => console.log(value));      
-    }
+        getKeyValue("messageMax").then((value) => console.log(value));   
+    }*/
 
     else if (message.content === prefix + "xp"){     
       getKeyValue("starterXp").then((value) => console.log(value));
@@ -430,15 +441,6 @@ Client.on("messageCreate", message => {
  
     }
     
-  
-     /*else if (message.content === prefix + "tacos"){
-  
-        const connoisseur = Math.floor(Math.random() * baseRandomTacosTier1.length);
-
-        message.channel.send(baseRandomTacosTier1[connoisseur]);
-    }*/
-
-
 
     else if (message.content === prefix + "tacos"){
       db.get("messageMax").then(messageMax => {
@@ -446,62 +448,67 @@ Client.on("messageCreate", message => {
           addMessageMax(message.author.username)
           getKeyValue("messageMax").then((value) => console.log(value));
         }
-        else if (checkIfBlacklisted(message.author.username) === true) {
-          message.channel.send("Ratio, tu n'as plus de roll.")
 
+        else {
+          addMessage(message.author.username)
+          checkIfBlacklisted(message.author.username)
+          console.log("check1");
         }
-        
       
       })
 
-      
-      
-      const randTier = Math.floor(Math.random() * 1000);
-      if (randTier < 1000){
-        db.get("randomTacosTier1").then(randomTacosTier1 => {
-           const connoisseur = Math.floor(Math.random() * randomTacosTier1.length);
-           message.channel.send(randomTacosTier1[connoisseur]);  
-          })
-        db.get("starterXp").then(starterXp => {
-          if (checkForDuplicates(starterXp, message.author.username) === true){     
-              addStarterXp(message.author.username);  
-              console.log("addStarterXp")
-          }
-        
-
-          addXp(5, message.author.username);  
+      if (checkIfBlacklisted(message.author.username) === false){
+        const randTier = Math.floor(Math.random() * 1000);
+        if (randTier < 1000){
+          db.get("randomTacosTier1").then(randomTacosTier1 => {
+             const connoisseur = Math.floor(Math.random() * randomTacosTier1.length);
+             message.channel.send(randomTacosTier1[connoisseur]);  
+            })
+          db.get("starterXp").then(starterXp => {
+            if (checkForDuplicates(starterXp, message.author.username) === true){     
+                addStarterXp(message.author.username);  
+                console.log("addStarterXp")
+            }
           
-        })
+  
+            addXp(5, message.author.username);  
+            
+          })}
+        else if (randTier < 900){
+          db.get("randomTacosTier2").then(randomTacosTier2 => {
+             const connoisseur = Math.floor(Math.random() * randomTacosTier2.length);
+  
+             message.channel.send(randomTacosTier2[connoisseur]);
+             console.log("check1");
+          })}      
+        else if (randTier < 950){
+          db.get("randomTacosTier3").then(randomTacosTier3 => {
+             const connoisseur = Math.floor(Math.random() * randomTacosTier3.length);
+  
+             message.channel.send(randomTacosTier3[connoisseur]);
+             console.log("check2");
+          })} 
+        else if (randTier < 990){
+          db.get("randomTacosTier4").then(randomTacosTier4 => {
+             const connoisseur = Math.floor(Math.random() * randomTacosTier4.length);
+  
+             message.channel.send(randomTacosTier4[connoisseur]);
+             console.log("check3");
+          })} 
+        else if (randTier < 1000){
+          db.get("randomTacosTier5").then(randomTacosTier5 => {
+             const connoisseur = Math.floor(Math.random() * randomTacosTier5.length);
+  
+             message.channel.send(randomTacosTier5[connoisseur]);
+             console.log("check4");
+          })} 
+        
+        console.log(randTier)
         }
-      else if (randTier < 900){
-        db.get("randomTacosTier2").then(randomTacosTier2 => {
-           const connoisseur = Math.floor(Math.random() * randomTacosTier2.length);
-
-           message.channel.send(randomTacosTier2[connoisseur]);
-           console.log("check1");
-        })}      
-      else if (randTier < 950){
-        db.get("randomTacosTier3").then(randomTacosTier3 => {
-           const connoisseur = Math.floor(Math.random() * randomTacosTier3.length);
-
-           message.channel.send(randomTacosTier3[connoisseur]);
-           console.log("check2");
-        })} 
-      else if (randTier < 990){
-        db.get("randomTacosTier4").then(randomTacosTier4 => {
-           const connoisseur = Math.floor(Math.random() * randomTacosTier4.length);
-
-           message.channel.send(randomTacosTier4[connoisseur]);
-           console.log("check3");
-        })} 
-      else if (randTier < 1000){
-        db.get("randomTacosTier5").then(randomTacosTier5 => {
-           const connoisseur = Math.floor(Math.random() * randomTacosTier5.length);
-
-           message.channel.send(randomTacosTier5[connoisseur]);
-           console.log("check4");
-        })} 
-       console.log(randTier);
+      else if (checkIfBlacklisted(message.author.username) === true) {
+        message.channel.send("Ratio, tu n'as plus de roll.")
+      }
+      
     }
 
       
