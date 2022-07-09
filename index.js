@@ -16,6 +16,9 @@ const app = express();
 const port = 3000;
 
 
+
+const flag = true
+
 const Database = require("@replit/database");
 const db = new Database();
 
@@ -34,7 +37,7 @@ async function listKeys() {
 }
 
 
-
+listKeys().then((keys) => console.log(keys))
 
 
 app.get('/', (req, res) => res.send('Hello World!'));
@@ -50,6 +53,10 @@ const data = new SlashCommandBuilder()
 
 const prefix = ".";
 let messageRatio
+
+const exp = 0
+
+const blacklist = []
 
 const ratioRandoms = [
     "Arthur",
@@ -128,6 +135,13 @@ db.set("randomTacosTier4", baseRandomTacosTier4);
 db.set("randomTacosTier5", baseRandomTacosTier5);
 
 
+starterXp = ["Admin", 0]
+messageMax = ["Admin", 0]
+
+db.set("starterXp", starterXp);
+db.set("messageMax", messageMax);
+
+
 
 function checkForDuplicates(array, dup) {
 
@@ -140,34 +154,83 @@ function checkForDuplicates(array, dup) {
 return true
 }
 
-starterXp = [0]
 
-function addUser(username){
-      db.set(username + "Xp", starterXp)
-}
-
-
-
-/*db.get("getsugateauXp").then(getsugateauXp => {
-   console.log(getsugateauXp[0]);
-   getsugateauXp[0] += 0
-   console.log(getsugateauXp[0]);
-   console.log("check");
-   db.set("getsugateauXp", getsugateauXp);
-  })
-
-db.get("getsugateauXp").then(getsugateauXp => {
-    console.log(getsugateauXp[0]);
-})*/
+function addMessageMax(name){
+    db.get("messageMax").then(messageMax => {
+      messageMax.push(name);
+      messageMax.push(0);
+      db.set("messageMax", messageMax)
+      
+    })
   
-async function readFile(filePath) {
-  try{
-    const data = await fs.readFile(filePath);
-    console.log(data.toString());
-  } catch (error) {
-    console.error('Erreur : ${error.message}');
-  }
 }
+
+function addStarterXp(name){
+    db.get("starterXp").then(starterXp => {
+      starterXp.push(name);
+      starterXp.push(0);
+      db.set("starterXp", starterXp)
+      
+    })
+  
+}
+
+
+function checkForIndex(array, name) {
+
+  for (let i = 0; i < array.length; i++){
+    if (name === array[i]){
+      return i;
+    }
+  }
+return false
+}
+
+function addXp(Xp, name){
+  db.get("starterXp").then(starterXp =>{
+    persIndex = checkForIndex(starterXp, name) + 1;
+    starterXp[persIndex] = starterXp[persIndex] + Xp;
+    db.set("starterXp", starterXp);
+  })
+}
+
+function addMessage(name){
+  db.get("messageMax").then(messageMax =>{
+    persIndex = checkForIndex(messageMax, name) + 1;
+    messageMax[persIndex] = messageMax[persIndex] + 1;
+    db.set("messageMax", messageMax);
+  })
+}
+
+function checkIfBlacklisted(name){
+  db.get("messageMax").then(messageMax =>{
+    persIndex = checkForIndex(messageMax, name) + 1;
+    console.log(name);
+    console.log(persIndex);
+    console.log(messageMax[persIndex]);
+    if (messageMax[persIndex] > 9){
+      blacklist.push(name)
+    }
+  })
+  if (checkForDuplicates(blacklist, name) == false){
+    return true
+  }
+  else {
+    return false
+  }
+
+}
+
+/*function tick() {
+  //get the mins of the current time
+  var mins = new Date().getMinutes();
+  if (mins == "00") {
+    alert('Do stuff');
+  }
+  console.log('Tick ' + mins);
+}
+
+setInterval(tick, 1000 * 3);*/
 
 
 function shuffle(array) {
@@ -204,6 +267,7 @@ function calcTime(city, offset) {
     // return time as a string
     return "Il est "+ nd.getHours() + "h" +  nd.getMinutes() + " chez Virgile";
 }
+
 
 
 team55 = [];
@@ -314,10 +378,59 @@ Client.on("messageCreate", message => {
     }
 
     else if (message.content === prefix + "test"){
-        readFile('greetings.txt');
-        message.channel.send("https://cdn.discordapp.com/attachments/397839859605307392/994706204502806630/unknown.png")
+        db.get("starterXp").then(starterXp => {
+          starterXp.push("WoaaW");
+          db.set("starterXp", starterXp)
+          getKeyValue("starterXp").then((value) => console.log(value));
+        })
     }
+
+    else if (message.content === prefix + "test2"){
+        db.get("starterXp").then(starterXp => {
+          /*starterXp.splice(0,1);
+          db.set("starterXp", starterXp)*/
+          getKeyValue("starterXp").then((value) => console.log(value));
+        })
+    }
+
+    else if (message.content === prefix + "test3"){
+        db.get("starterXp").then(starterXp => {
+          starterXp.push(5);
+          db.set("starterXp", starterXp)
+          getKeyValue("starterXp").then((value) => console.log(value));
+          console.log(checkForDuplicates(starterXp, message.author.username));
+        })
+     }
       
+    else if (message.content === prefix + "test4"){
+        db.get("starterXp").then(starterXp => {
+          getKeyValue("starterXp").then((value) => console.log(value));
+          console.log(checkForIndex(starterXp, message.author.username));
+          persIndex = checkForIndex(starterXp, message.author.username) + 1;
+          console.log(persIndex);
+          console.log(starterXp[persIndex]);
+          starterXp[persIndex] = starterXp[persIndex] + 5;
+          db.set("starterXp", starterXp);
+          
+        })
+     }    
+
+    else if (message.content === prefix + "test5"){
+        addStarterXp(message.author.username);
+        getKeyValue("starterXp").then((value) => console.log(value));      
+    }
+
+    else if (message.content === prefix + "xp"){     
+      getKeyValue("starterXp").then((value) => console.log(value));
+      db.get("starterXp").then(starterXp =>{
+        persIndex = checkForIndex(starterXp, message.author.username) + 1;
+        const exp = starterXp[persIndex];
+        message.channel.send("Tu as " + exp + " d'expériences");
+      })
+ 
+    }
+    
+  
      /*else if (message.content === prefix + "tacos"){
   
         const connoisseur = Math.floor(Math.random() * baseRandomTacosTier1.length);
@@ -328,26 +441,38 @@ Client.on("messageCreate", message => {
 
 
     else if (message.content === prefix + "tacos"){
+      db.get("messageMax").then(messageMax => {
+        if (checkForDuplicates(messageMax, message.author.username) === true){
+          addMessageMax(message.author.username)
+          getKeyValue("messageMax").then((value) => console.log(value));
+        }
+        else if (checkIfBlacklisted(message.author.username) === true) {
+          message.channel.send("Ratio, tu n'as plus de roll.")
+
+        }
+        
+      
+      })
+
+      
+      
       const randTier = Math.floor(Math.random() * 1000);
-      if (randTier < 750){
+      if (randTier < 1000){
         db.get("randomTacosTier1").then(randomTacosTier1 => {
            const connoisseur = Math.floor(Math.random() * randomTacosTier1.length);
-
-           message.channel.send(randomTacosTier1[connoisseur]);
-          if(message.author.username + "Xp" == null){
-            addUser(message.author.username);
-            console.log("check addUser")
+           message.channel.send(randomTacosTier1[connoisseur]);  
+          })
+        db.get("starterXp").then(starterXp => {
+          if (checkForDuplicates(starterXp, message.author.username) === true){     
+              addStarterXp(message.author.username);  
+              console.log("addStarterXp")
           }
-           user = message.author.username + "Xp";
-          /* db.get(user).then(user => {
-             console.log(user[0]);
-             user[0] = user[0] + 5;
-             console.log(user[0]);
-             console.log("check");
-             db.set(user, user);
-          })    */
-          console.log("check");
-        })}
+        
+
+          addXp(5, message.author.username);  
+          
+        })
+        }
       else if (randTier < 900){
         db.get("randomTacosTier2").then(randomTacosTier2 => {
            const connoisseur = Math.floor(Math.random() * randomTacosTier2.length);
@@ -511,6 +636,8 @@ Client.on("messageCreate", message => {
     else return false
   
 });
+
+
 
 
 Client.login(process.env.DC_TOKEN);
