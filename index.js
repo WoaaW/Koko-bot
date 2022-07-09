@@ -1,5 +1,6 @@
 const Discord = require("discord.js");
 const { SlashCommandBuilder } = require("@discordjs/builders");
+const { MessageAttachment } = require("discord.js")
 const Client = new Discord.Client({
   intents: [
       Discord.Intents.FLAGS.GUILDS,
@@ -7,12 +8,34 @@ const Client = new Discord.Client({
     Discord.Intents.FLAGS.GUILD_VOICE_STATES
   ]
 });
-
+const fs = require('fs').promises;
 
 const ytdl = require('ytdl-core');
 const express = require('express');
 const app = express();
 const port = 3000;
+
+
+const Database = require("@replit/database");
+const db = new Database();
+
+async function setKey(key, value) {
+  await db.set(key, value);
+}
+
+async function getKeyValue(key) {
+  let value = await db.get(key);
+  return value;
+}
+
+async function listKeys() {
+  let keys = await db.list()
+  return keys;
+}
+
+
+
+
 
 app.get('/', (req, res) => res.send('Hello World!'));
 
@@ -42,6 +65,68 @@ const ratioRandoms = [
     "Eliot"
 ];
 
+const baseRandomTacosTier1 = [
+  "https://i.pinimg.com/236x/21/f7/0e/21f70e85ff57d7f06134fdff4e6fbc35.jpg",
+  "https://i.pinimg.com/236x/12/1a/71/121a71a6bc75d29c18b427eb3461f19d.jpg",
+  "https://i.pinimg.com/236x/da/2e/22/da2e22c7e30b32b4077bef730279cad7.jpg",
+  "https://i.pinimg.com/236x/82/de/f7/82def7aa40042ad7166eb6389f9f5d1e.jpg",
+  "https://i.pinimg.com/236x/02/3c/8e/023c8ee9d02c66dd8923947caf43cae7.jpg",
+  "https://i.pinimg.com/236x/4b/0c/70/4b0c706c5cfac1ed993cec6e91785a74.jpg",
+  "https://i.pinimg.com/236x/64/53/e1/6453e1631540c6d8d405de57c3b970a1.jpg",
+  "https://i.pinimg.com/236x/f5/20/10/f52010f1acafbe3969cc567c41d44865.jpg",
+  "https://upload.wikimedia.org/wikipedia/commons/9/9a/French_tacos_from_French_Tacos_on_London_Road.jpg",
+  "https://static.takeaway.com/images/restaurants/be/N1R1OOR/products/tacos_double_classique.png?timestamp=1656251304",
+  "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQHSuBdlj_rkQA0TKpHP6twfhecksBXSInwEA&usqp=CAU",
+  "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSmBj0rIkcJDunpgedOipblQ0NdgF4wnmzFqg&usqp=CAU",
+  "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR4CyaS4TiLaJiCntjievFxar-mH9l2E2dcag&usqp=CAU",
+  "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQVGkxFokTp9zPw0hup6xTiRTXyCZpyDOVArw&usqp=CAU",
+  "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRC5EES5kYkTL7ANrfNV3GgOO_pwqqJeBn9Rg&usqp=CAU",
+  "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSU8da4n4F3CiwHm_25BgUTmV88pVhGVYkjBA&usqp=CAU",
+  "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQWabzmsgwpyTkZy1ek6QX_oEJqrIIgA2atNA&usqp=CAU",
+  "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSf9mX16EUxafupxat2QbG-Rg9iwCsSqlb-5A&usqp=CAU",
+  "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQCxk-2mLd34YF_83BhhkHSjyUG8VwHFYhRhw&usqp=CAU",
+  "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSThR9m06j4IJUEsfVn73VzJ_fHXxvuRvdAQg&usqp=CAU",
+  "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRL5w1aZ8jDA1SAqY6YSA2EEvS0lI6BwB8VMA&usqp=CAU",
+  "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSmYFr0w38C8rFhi-JdQGKnHlQdPWqFE9ndoA&usqp=CAU",
+  "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ1HnSgcDxsdtPN6rdyiVTaK3UuGrw3_ANYbQ&usqp=CAU",
+  "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTdxIyp7qJ3QSGcXwwr1wWLxpxmAIXfbArtZA&usqp=CAU",
+  "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQCdwMa_Tg2MkqPWZq0FJjIL_Q_IF9ZvYWcSw&usqp=CAU",
+  "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQXE2zZM6LWymaEHteApsoHx4iKlwpBLU7NAA&usqp=CAU",
+  "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRugA8ahubsTTzjQGd065xYfvOQ2heHf_NJ4Q&usqp=CAU",
+  "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTF6KMChENT0XgD-qsLuAL9WFr4jmJEXlw79Q&usqp=CAU",
+  "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS38E71AWQQWlzXM0cuvCwVWrRngJnZs9TPUg&usqp=CAU",
+  "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSU8fgM5MPjL6iC7AoeLk77KWF8XWFtMaNgaQ&usqp=CAU",
+  "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSdH3P8hOsQ2ic1RiMiNpHM_hCVEhnnq1OeWQ&usqp=CAU",
+  "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTjLR6twp4kT2dPzbu0AtfH8uvURgnH5yktYA&usqp=CAU",
+  "https://cdn.discordapp.com/attachments/397839859605307392/994706204502806630/unknown.png",
+  "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQzbNFRHsfkIpQaDygL1HBaRcgh1oIfKxY62Q&usqp=CAU",
+  "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcThPYqQrrxTwjOCknK3BH91mWeCz8Z4PaAg4A&usqp=CAU",
+]
+
+
+const baseRandomTacosTier2 = [
+  "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcThPYqQrrxTwjOCknK3BH91mWeCz8Z4PaAg4A&usqp=CAU",
+]
+
+const baseRandomTacosTier3 = [
+  "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQzbNFRHsfkIpQaDygL1HBaRcgh1oIfKxY62Q&usqp=CAU"
+]
+
+const baseRandomTacosTier4 = [
+  "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQzbNFRHsfkIpQaDygL1HBaRcgh1oIfKxY62Q&usqp=CAU"
+]
+
+const baseRandomTacosTier5 = [
+  "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQzbNFRHsfkIpQaDygL1HBaRcgh1oIfKxY62Q&usqp=CAU"
+]
+
+
+db.set("randomTacosTier1", baseRandomTacosTier1);
+db.set("randomTacosTier2", baseRandomTacosTier2);
+db.set("randomTacosTier3", baseRandomTacosTier3);
+db.set("randomTacosTier4", baseRandomTacosTier4);
+db.set("randomTacosTier5", baseRandomTacosTier5);
+
 
 
 function checkForDuplicates(array, dup) {
@@ -54,8 +139,35 @@ function checkForDuplicates(array, dup) {
 }
 return true
 }
-  
 
+starterXp = [0]
+
+function addUser(username){
+      db.set(username + "Xp", starterXp)
+}
+
+
+
+/*db.get("getsugateauXp").then(getsugateauXp => {
+   console.log(getsugateauXp[0]);
+   getsugateauXp[0] += 0
+   console.log(getsugateauXp[0]);
+   console.log("check");
+   db.set("getsugateauXp", getsugateauXp);
+  })
+
+db.get("getsugateauXp").then(getsugateauXp => {
+    console.log(getsugateauXp[0]);
+})*/
+  
+async function readFile(filePath) {
+  try{
+    const data = await fs.readFile(filePath);
+    console.log(data.toString());
+  } catch (error) {
+    console.error('Erreur : ${error.message}');
+  }
+}
 
 
 function shuffle(array) {
@@ -167,7 +279,7 @@ Client.on("messageCreate", message => {
 
 
         let roleID = "398609010665717781";
-        let membersWithRole =         message.guild.roles.cache.get(roleID).members.map(m=>m.user.id);
+        let membersWithRole =          message.guild.roles.cache.get(roleID).members.map(m=>m.user.id);
         console.log(`Got ${membersWithRole.length} members with that role.`);
         console.log(membersWithRole);
 
@@ -200,6 +312,74 @@ Client.on("messageCreate", message => {
         
         message.channel.send({ embeds: [embed]});
     }
+
+    else if (message.content === prefix + "test"){
+        readFile('greetings.txt');
+        message.channel.send("https://cdn.discordapp.com/attachments/397839859605307392/994706204502806630/unknown.png")
+    }
+      
+     /*else if (message.content === prefix + "tacos"){
+  
+        const connoisseur = Math.floor(Math.random() * baseRandomTacosTier1.length);
+
+        message.channel.send(baseRandomTacosTier1[connoisseur]);
+    }*/
+
+
+
+    else if (message.content === prefix + "tacos"){
+      const randTier = Math.floor(Math.random() * 1000);
+      if (randTier < 750){
+        db.get("randomTacosTier1").then(randomTacosTier1 => {
+           const connoisseur = Math.floor(Math.random() * randomTacosTier1.length);
+
+           message.channel.send(randomTacosTier1[connoisseur]);
+          if(message.author.username + "Xp" == null){
+            addUser(message.author.username);
+            console.log("check addUser")
+          }
+           user = message.author.username + "Xp";
+          /* db.get(user).then(user => {
+             console.log(user[0]);
+             user[0] = user[0] + 5;
+             console.log(user[0]);
+             console.log("check");
+             db.set(user, user);
+          })    */
+          console.log("check");
+        })}
+      else if (randTier < 900){
+        db.get("randomTacosTier2").then(randomTacosTier2 => {
+           const connoisseur = Math.floor(Math.random() * randomTacosTier2.length);
+
+           message.channel.send(randomTacosTier2[connoisseur]);
+           console.log("check1");
+        })}      
+      else if (randTier < 950){
+        db.get("randomTacosTier3").then(randomTacosTier3 => {
+           const connoisseur = Math.floor(Math.random() * randomTacosTier3.length);
+
+           message.channel.send(randomTacosTier3[connoisseur]);
+           console.log("check2");
+        })} 
+      else if (randTier < 990){
+        db.get("randomTacosTier4").then(randomTacosTier4 => {
+           const connoisseur = Math.floor(Math.random() * randomTacosTier4.length);
+
+           message.channel.send(randomTacosTier4[connoisseur]);
+           console.log("check3");
+        })} 
+      else if (randTier < 1000){
+        db.get("randomTacosTier5").then(randomTacosTier5 => {
+           const connoisseur = Math.floor(Math.random() * randomTacosTier5.length);
+
+           message.channel.send(randomTacosTier5[connoisseur]);
+           console.log("check4");
+        })} 
+       console.log(randTier);
+    }
+
+      
 
     else if (message.content === prefix + "Virgile" || message.content === prefix + "virgile"){
         
