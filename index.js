@@ -545,15 +545,7 @@ Client.on("messageCreate", message => {
 
     else if (message.content === prefix + "tacos"){
 
-      if (slowMode === 0){
-        slowMode = slowMode + 1
-        setTimeout(resetSlowMode,1000);
-        console.log("check1");
-      }
-      else {
-        message.channel.send("Calme toi + gros ratio");
-        console.log("check2");
-      }
+
       db.get("messageMax").then(messageMax => {
         if (checkForDuplicates(messageMax, message.author.username) === true){
           addMessageMax(message.author.username)
@@ -567,8 +559,12 @@ Client.on("messageCreate", message => {
         }
       
       })
-
-      if (checkIfBlacklisted(message.author.username) === false){
+      
+      if (slowMode === 0){
+        slowMode = slowMode + 1
+        setTimeout(resetSlowMode,500);
+        console.log("check1");
+        if (checkIfBlacklisted(message.author.username) === false){
         const randTier = Math.floor(Math.random() * 1000);
         if (randTier < 750){
           db.get("randomTacosTier1").then(randomTacosTier1 => {
@@ -698,6 +694,13 @@ Client.on("messageCreate", message => {
       else if (checkIfBlacklisted(message.author.username) === true) {
         message.channel.send("Ratio, tu n'as plus de roll.")
       }
+      }
+      else {
+        message.channel.send("Calme toi + gros ratio");
+        console.log("check2");
+      }
+      
+      
       
     }
 
