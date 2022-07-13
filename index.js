@@ -16,7 +16,6 @@ const app = express();
 const port = 3000;
 
 
-
 const flag = true
 
 const Database = require("@replit/database");
@@ -255,9 +254,7 @@ function addMessage(name){
 function checkIfBlacklisted(name){
   db.get("messageMax").then(messageMax =>{
     persIndex = checkForIndex(messageMax, name) + 1;
-    console.log(name);
-    console.log(persIndex);
-    console.log(messageMax[persIndex]);
+
     if (messageMax[persIndex] > 9){
       blacklist.push(name)
     }
@@ -549,13 +546,13 @@ Client.on("messageCreate", message => {
       db.get("messageMax").then(messageMax => {
         if (checkForDuplicates(messageMax, message.author.username) === true){
           addMessageMax(message.author.username)
-          getKeyValue("messageMax").then((value) => console.log(value));
+
         }
 
         else {
           addMessage(message.author.username)
           checkIfBlacklisted(message.author.username)
-          console.log("check1");
+
         }
       
       })
@@ -563,7 +560,7 @@ Client.on("messageCreate", message => {
       if (slowMode === 0){
         slowMode = slowMode + 1
         setTimeout(resetSlowMode,500);
-        console.log("check1");
+
         if (checkIfBlacklisted(message.author.username) === false){
         const randTier = Math.floor(Math.random() * 1000);
         if (randTier < 750){
@@ -626,7 +623,7 @@ Client.on("messageCreate", message => {
             addXp(100, message.author.username);  
             
           })}
-        else if (randTier < 979){
+        else if (randTier < awd979){
           db.get("randomTacosTier4").then(randomTacosTier4 => {
              const connoisseur = Math.floor(Math.random() * randomTacosTier4.length);
              const embed = new Discord.MessageEmbed()
@@ -696,7 +693,7 @@ Client.on("messageCreate", message => {
       }
       }
       else {
-        message.channel.send("Calme toi + gros ratio");
+        message.channel.send("Calme toi + gros ratio + -1 roll");
         console.log("check2");
       }
       
@@ -724,7 +721,7 @@ Client.on("messageCreate", message => {
               .setTitle("Classement Des Meilleurs Tacos")
               .addField("<:tacos:484507797652766746> : " + classement[0], " xp : " + classement[1])
               .addField("2 : " + classement[2], " xp : " + classement[3])
-              .addField("3 : " + classement[4], " xp : " + classement[5])
+              .addField("3 : " + classement[4], " xp : " + classement[5] )
               .addField("4 : " + classement[6], " xp : " + classement[7])
               .addField("5 : " + classement[8], " xp : " + classement[9])
               .addField("6 : " + classement[10], " xp : " + classement[11])
